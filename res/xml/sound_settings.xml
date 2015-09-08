@@ -45,6 +45,13 @@
             android:key="category_automation_effects"
             android:title="@string/automation_effects_title"/>
 
+    <!-- Volume steps -->
+    <PreferenceScreen
+            android:key="volume_steps"
+            android:fragment="com.android.settings.xoplax.VolumeSteps"
+            android:summary="@string/volume_steps_summary"
+            android:title="@string/volume_steps_title" />
+
     <!-- Quiet hours -->
     <PreferenceScreen
             android:key="quiet_hours"

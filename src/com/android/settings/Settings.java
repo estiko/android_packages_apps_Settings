@@ -130,6 +130,7 @@ import com.android.settings.wifi.AdvancedWifiSettings;
 import com.android.settings.wifi.WifiEnabler;
 import com.android.settings.wifi.WifiSettings;
 import com.android.settings.wifi.p2p.WifiP2pSettings;
+import com.android.settings.xoplax.XoplaXUiSettings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -209,6 +210,7 @@ public class Settings extends PreferenceActivity
             R.id.status_bar_settings,
             R.id.notification_bar_settings,
             R.id.lock_screen_settings,
+            R.id.xoplax_ui_settings,
             R.id.privacy_settings_cyanogenmod,
             R.id.button_settings
     };
@@ -483,6 +485,7 @@ public class Settings extends PreferenceActivity
         ApnSettings.class.getName(),
         HomeSettings.class.getName(),
         LockscreenInterface.class.getName(),
+        XoplaXUiSettings.class.getName(),
         StatusBar.class.getName(),
         NotificationDrawer.class.getName(),
         ButtonSettings.class.getName(),
@@ -1413,4 +1416,5 @@ public class Settings extends PreferenceActivity
     public static class ThemeSettingsActivity extends Settings { /* empty */ }
     public static class WifiApSettingsActivity extends Settings { /* empty */ }
     public static class LockscreenInterfaceActivity extends Settings { /* empty */ }
+    public static class ASSRamBarActivity extends Settings { /* empty */ }
 }

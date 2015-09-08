@@ -68,7 +68,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     private static final String KEY_BLUETOOTH_INPUT_SETTINGS = "bluetooth_input_settings";
     private static final String KEY_NAVIGATION_BAR_LEFT = "navigation_bar_left";
     private static final String KEY_NAVIGATION_RECENTS_LONG_PRESS = "navigation_recents_long_press";
-    private static final String DISABLE_NAV_KEYS = "disable_nav_keys";
+    //private static final String DISABLE_NAV_KEYS = "disable_nav_keys";
     private static final String KEY_POWER_END_CALL = "power_end_call";
     private static final String KEY_HOME_ANSWER_CALL = "home_answer_call";
 
@@ -117,7 +117,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     private CheckBoxPreference mCameraMusicControls;
     private ListPreference mVolumeKeyCursorControl;
     private CheckBoxPreference mSwapVolumeButtons;
-    private CheckBoxPreference mDisableNavigationKeys;
+    //private CheckBoxPreference mDisableNavigationKeys;
     private CheckBoxPreference mPowerEndCall;
     private CheckBoxPreference mHomeAnswerCall;
     private CheckBoxPreference mNavigationBarLeftPref;
@@ -126,6 +126,9 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     private PreferenceCategory mNavigationPreferencesCat;
 
     private Handler mHandler;
+
+    // Enable/disable nav bar
+    private CheckBoxPreference mEnableNavigationBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,12 +175,25 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         mHandler = new Handler();
 
         // Force Navigation bar related options
-        mDisableNavigationKeys = (CheckBoxPreference) findPreference(DISABLE_NAV_KEYS);
+        // mDisableNavigationKeys = (CheckBoxPreference) findPreference(DISABLE_NAV_KEYS);
+        mEnableNavigationBar = (CheckBoxPreference) findPreference(ENABLE_NAV_BAR);
 
         mNavigationPreferencesCat = (PreferenceCategory) findPreference(CATEGORY_NAVBAR);
 
         // Navigation bar left
         mNavigationBarLeftPref = (CheckBoxPreference) findPreference(KEY_NAVIGATION_BAR_LEFT);
+
+        // Booleans to enable/disable nav bar
+        // overriding overlays
+        boolean hasNavBarByDefault = getResources().getBoolean(
+                  com.android.internal.R.bool.config_showNavigationBar);
+        boolean enableNavigationBar = Settings.System.getInt(getContentResolver(),
+                  Settings.System.NAVIGATION_BAR_SHOW, hasNavBarByDefault ? 1 : 0) == 1;
+        mEnableNavigationBar.setChecked(enableNavigationBar);
+        mEnableNavigationBar.setOnPreferenceChangeListener(this);
+
+        updateNavbarPreferences(enableNavigationBar);
+
         // Navigation bar recents long press activity needs custom setup
         mNavigationRecentsLongPressAction = initRecentsLongPressAction(KEY_NAVIGATION_RECENTS_LONG_PRESS);
 
@@ -187,19 +203,19 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         if (isKeyDisablerSupported()) {
             try {
                 IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
-                needsNavigationBar = wm.needsNavigationBar();
+                needsNavigationBar = wm.hasNavigationBar();
             } catch (RemoteException e) {
             }
 
             if (needsNavigationBar) {
-                prefScreen.removePreference(mDisableNavigationKeys);
+                prefScreen.removePreference(mEnableNavigationBar);
             } else {
                 // Remove keys that can be provided by the navbar
                 updateDisableNavkeysOption();
                 mNavigationPreferencesCat.setEnabled(mDisableNavigationKeys.isChecked());
             }
         } else {
-            prefScreen.removePreference(mDisableNavigationKeys);
+            prefScreen.removePreference(mEnableNavigationBar);
         }
 
         if (hasPowerKey) {
@@ -334,7 +350,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
             // Only show the navigation bar category on devices that has a navigation bar
             // unless we are forcing it via development settings
             boolean forceNavbar = android.provider.Settings.System.getInt(getContentResolver(),
-                    android.provider.Settings.System.DEV_FORCE_SHOW_NAVBAR, 0) == 1;
+                    android.provider.Settings.System.NAVIGATION_BAR_SHOW, 0) == 1;
             boolean hasNavBar = WindowManagerGlobal.getWindowManagerService().hasNavigationBar()
                     || forceNavbar;
 
@@ -463,6 +479,9 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         Settings.System.putInt(getContentResolver(), setting, Integer.valueOf(value));
     }
 
+    // Enable/disbale nav bar
+    private void updateNavbarPreferences(boolean show) {}
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference == mHomeLongPressAction) {
@@ -501,6 +520,13 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
             handleActionListChange(mVolumeKeyCursorControl, newValue,
                     Settings.System.VOLUME_KEY_CURSOR_CONTROL);
             return true;
+        // Enable/disbale nav bar (used in custom nav bar dimensions)
+        } else if (preference == mEnableNavigationBar) {
+            Settings.System.putInt(getActivity().getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_SHOW,
+                    ((Boolean) newValue) ? 1 : 0);
+            updateNavbarPreferences((Boolean) newValue);
+          return true;
         } else if (preference == mNavigationRecentsLongPressAction) {
             // RecentsLongPressAction is handled differently because it intentionally uses Settings.Secure over
             // Settings.System.
@@ -526,7 +552,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
                 com.android.internal.R.integer.config_buttonBrightnessSettingDefault);
 
         Settings.System.putInt(context.getContentResolver(),
-                Settings.System.DEV_FORCE_SHOW_NAVBAR, enabled ? 1 : 0);
+                Settings.System.NAVIGATION_BAR_SHOW, enabled ? 1 : 0);
         KeyDisabler.setActive(enabled);
 
         /* Save/restore button timeouts to disable them in softkey mode */
@@ -543,9 +569,9 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
 
     private void updateDisableNavkeysOption() {
         boolean enabled = Settings.System.getInt(getActivity().getContentResolver(),
-                Settings.System.DEV_FORCE_SHOW_NAVBAR, 0) != 0;
+                Settings.System.NAVIGATION_BAR_SHOW, 0) != 0;
 
-        mDisableNavigationKeys.setChecked(enabled);
+        mEnableNavigationBar.setChecked(enabled);
 
         final PreferenceScreen prefScreen = getPreferenceScreen();
 
@@ -589,7 +615,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         }
 
         writeDisableNavkeysOption(context, Settings.System.getInt(context.getContentResolver(),
-                Settings.System.DEV_FORCE_SHOW_NAVBAR, 0) != 0);
+                Settings.System.NAVIGATION_BAR_SHOW, 0) != 0);
     }
 
 
@@ -606,16 +632,16 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
             mCameraMusicControls.setEnabled(!isCameraWakeEnabled);
             mCameraSleepOnRelease.setEnabled(isCameraWakeEnabled);
             return true;
-        } else if (preference == mDisableNavigationKeys) {
-            mDisableNavigationKeys.setEnabled(false);
+        } else if (preference == mEnableNavigationBar) {
+            mEnableNavigationBar.setEnabled(false);
 
             mNavigationPreferencesCat.setEnabled(false);
-            writeDisableNavkeysOption(getActivity(), mDisableNavigationKeys.isChecked());
+            writeDisableNavkeysOption(getActivity(), mEnableNavigationBar.isChecked());
             updateDisableNavkeysOption();
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mDisableNavigationKeys.setEnabled(true);
+                    mEnableNavigationBar.setEnabled(true);
                 }
             }, 1000);
         } else if (preference == mPowerEndCall) {

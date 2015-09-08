@@ -74,6 +74,11 @@
             android:entries="@array/entries_screentimeout_widget"
             android:entryValues="@array/values_screentimeout_widget" />
 
+        <CheckBoxPreference
+            android:key="flip_qs_tiles"
+            android:title="@string/flip_qs_tiles_title"
+            android:summary="@string/flip_qs_tiles_summary" />
+
         <MultiSelectListPreference
             android:key="pref_location_mode"
             android:dialogTitle="@string/pref_location_mode_title"

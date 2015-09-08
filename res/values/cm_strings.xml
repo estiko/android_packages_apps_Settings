@@ -1466,4 +1466,9 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
     <string name="lock_to_cyanogen_disable_msg">Disabling this feature will allow unauthorized users to reset your phone to factory defaults if it is stolen. Your personal data may not be protected. Do you want to disable this feature?</string>
     <string name="lock_to_cyanogen_master_clear_warning">Device Protection is enabled. Please disable to continue resetting your device.</string>
 
+    <string name="spam_added_title">Added %1$s</string>
+    <string name="spam_last_blocked_title">Last blocked %1$s</string>
+    <string name="block_notifications_title">Filter notifications</string>
+    <string name="no_filters_title">No filters set</string>
+
 </resources>

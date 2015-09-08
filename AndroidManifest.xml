@@ -1784,6 +1784,41 @@
             android:theme="@style/CryptKeeperBlankTheme"
         />
 
+        <!-- XoplaX OS activities Start -->
+        <activity android:name="Settings$XOPLAXSettingsActivity"
+                android:label="@string/interface_settings_title"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.xoplax.XoplaXUiSettings" />
+            <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
+                android:resource="@+id/xoplax_ui_settings" />
+        </activity>
+
+        <activity
+            android:name=".xoplax.lsn.LockscreenNotifications"
+            android:label="@string/Lockscreen_notifications_header" >
+        </activity>
+
+        <activity android:name=".xoplax.RamBar" />
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to ass display rotation config -->
+        <activity android:name="Settings$ASSRamBarActivity"
+                android:label="@string/ram_bar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.xoplax.RamBar" />
+        </activity>
+
+        <!-- XoplaX OS activities End -->
+
         <!-- CyanogenMod activities Start -->
         <activity android:name="Settings$QuickSettingsConfigActivity"
                 android:label="@string/tile_picker_title"
@@ -1899,6 +1934,8 @@
         <activity android:name=".cyanogenmod.StatusBar" />
 
         <activity android:name=".cyanogenmod.NotificationDrawer" />
+
+        <activity android:name=".cyanogenmod.SpamList" />
 
         <activity android:name=".cyanogenmod.SpamList" />
 
@@ -2179,5 +2216,6 @@
         </service>
 
         <service android:name=".search.SearchPopulator"/>
+
     </application>
 </manifest>

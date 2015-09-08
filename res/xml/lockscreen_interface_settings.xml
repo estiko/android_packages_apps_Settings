@@ -44,6 +44,11 @@
             android:summary="@string/lockscreen_target_summary"
             android:title="@string/lockscreen_target_title" />
 
+        <CheckBoxPreference
+            android:key="lock_before_unlock"
+            android:title="@string/lock_before_unlock_title"
+            android:summary="@string/lock_before_unlock_summary" />
+
         <PreferenceScreen
             settings:excludeFromSearch="true"
             android:fragment="com.android.settings.cyanogenmod.LockscreenButtons"
@@ -54,6 +59,12 @@
         <CheckBoxPreference
             android:key="lockscreen_modlock_enabled"
             android:title="@string/lockscreen_enable_modlock_title" />
+
+        <Preference
+            android:fragment="com.android.settings.xoplax.lsn.LockscreenNotifications"
+            android:key="lockscreen_notifications"
+            android:summary="@string/lockscreen_notifications_summary"
+            android:title="@string/Lockscreen_notifications_header" />
 
     </PreferenceCategory>
 
@@ -83,6 +94,26 @@
             android:key="lockscreen_maximize_widgets"
             android:summary="@string/lockscreen_maximize_widgets_summary"
             android:title="@string/lockscreen_maximize_widgets_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/misc_category"
+        android:key="lockscreen_misc_category" >
+
+      <!-- Blur Effect -->
+        <SeekBarPreference
+            android:key="lockscreen_blur_radius"
+            android:title="@string/blur_radius_title"
+            android:summary="@string/blur_radius_summary"
+            android:max="25"
+            android:defaultValue="12" />
+
+        <!-- See Through -->
+        <CheckBoxPreference
+            android:key="lockscreen_see_through"
+            android:title="@string/see_through_title"
+            android:summary="@string/see_through_summary" />
 
     </PreferenceCategory>
 

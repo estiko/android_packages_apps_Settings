@@ -33,4 +33,8 @@
             android:title="@string/block_notifications_title"
             android:fragment="com.android.settings.cyanogenmod.SpamList" />
 
+        <PreferenceScreen
+            android:title="@string/block_notifications_title"
+            android:fragment="com.android.settings.cyanogenmod.SpamList" />
+
 </PreferenceScreen>

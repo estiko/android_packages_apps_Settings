@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+   Copyright 2013-2014 XoplaX OS Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Categories -->
+    <string name="misc_category">Misc</string>
+
+    <!-- Color Picker -->
+    <string name="dialog_color_picker">Color Picker</string>
+    <string name="press_color_to_apply">Press on color below to apply</string>
+    <string name="arrow_right">→</string>
+    <string name="arrow_down">↓</string>
+    <string name="hex">Hex:</string>
+    <string name="hex_hint">#ff000000</string>
+    <string name="set">Set</string>
+    <string name="color_default">Default</string>
+
+    <!-- CPUFreq Tile -->
+    <string name="title_tile_cpufreq">CPUFreq</string>
+
+    <!-- General strings -->
+    <string name="default_string">Default</string>
+    <string name="ok">OK</string>
+    <string name="reset">Reset</string>
+
+    <!-- Keyboard and Input ASS methods  -->
+    <string name="title_keyboard_input">Advanced options</string>
+    <string name="disable_fullscreen_keyboard_title">Disable fullscreen keyboard</string>
+    <string name="disable_fullscreen_keyboard_summary">Landscape keyboard will never take up entire screen</string>
+    <string name="keyboard_rotation_toggle_title">Auto keyboard rotation</string>
+    <string name="keyboard_rotation_toggle_summary">Force auto-rotate when keyboard is shown</string>
+    <string name="keyboard_rotation_timeout_title">Auto-rotate timeout</string>
+    <string name="keyboard_rotation_timeout_summary">Disables auto-rotate sensor <xliff:g id="rotate_timeout">%1$s</xliff:g> seconds after keyboard is hidden</string>
+    <string name="keyboard_rotation_dialog">Note: This feature forces auto-rotate to turn on temporarily while the keyboard is out.  It has no effect when auto-rotate is already enabled.</string>
+    <string name="show_enter_key_title">Show enter key</string>
+    <string name="show_enter_key_summary">Force keyboard to show enter instead of emoticon key</string>
+
+    <!-- Lock before unlock -->
+    <string name="lock_before_unlock_title">Show slider before secure unlock</string>
+    <string name="lock_before_unlock_summary">Show slider lockscreen before secure unlock mechanism</string>
+
+    <!-- Lockscreen blur -->
+    <string name="blur_radius_title">Blur Radius</string>
+    <string name="blur_radius_summary">Set the blur radius for the blur effect</string>
+
+    <!-- Lockscreen Notifications -->
+    <!-- Categories -->
+    <string name="general">General</string>
+    <string name="layout">Layout</string>
+    <string name="privacy">Privacy</string>
+
+    <string name="Lockscreen_notifications_header">Lockscreen Notifications</string>
+    <string name="lockscreen_notifications">Lockscreen notifications</string>
+    <string name="lockscreen_notifications_summary">Show pending notifications on lockscreen</string>
+    <string name="pocket_mode">Pocket mode</string>
+    <string name="pocket_mode_summary">Turn screen on and show all notifications when device is pulled out of pocket. Turn screen off when device gets back into pocket.</string>
+    <string name="show_always">Show always</string>
+    <string name="show_always_summary">Always turn screen on when pulled out of pocket, even when there are no notifications pending</string>
+    <string name="hide_low_priority">Hide low priority</string>
+    <string name="hide_low_priority_summary">Hide low priority notifications such as google now weather notifications</string>
+    <string name="hide_non_clearable">Hide non clearable</string>
+    <string name="hide_non_clearable_summary">Hide all non clearable notifications</string>
+    <string name="dismiss_all">Allow dismissing all notifications</string>
+    <string name="dismiss_all_summary">Allow dismissing even non clearable notifications. Of course, they\'re just hidden from lockscreen and not from the notification panel.</string>
+    <string name="expanded_view">Expanded notification view</string>
+    <string name="expanded_view_summary">Add possibility to toggle between normal and expanded view by longpress. The expanded view sometimes shows more private information so you might want to disable it</string>
+    <string name="force_expanded_view">Force expanded view</string>
+    <string name="force_expanded_view_summary">Show notifications expanded by default. You still will be able to toggle between expanded and normal view</string>
+    <string name="wake_on_notification">Wake on notification</string>
+    <string name="wake_on_notification_summary">Wake device when a new notification is received</string>
+    <string name="notifications_height">Notification count</string>
+    <string name="notifications_height_summary">Number of notifications displayed at once</string>
+    <string name="offset_top">Offset to the top of the screen:</string>
+    <string name="privacy_mode">Privacy Mode</string>
+    <string name="privacy_mode_summary">Disables notifications from being shown and dismissed. This way, you just see the icons of your notifications</string>
+    <string name="dynamic_width">Dynamic width</string>
+    <string name="dynamic_width_summary">Sets the width of notifications dynamic, so that they only use the space they really need</string>
+    <string name="excluded_apps_title">Excluded applications</string>
+    <string name="excluded_apps_summary">Excluded applications will not show up as lockscreen notifications</string>
+    <string name="notification_color">Notification background color</string>
+
+    <!-- Lockscreen pin shuffle -->
+    <string name="lock_numpad_random_title">Change the order of PIN pad numbers</string>
+    <string name="lock_numpad_random_dialog_title">PIN pad random order</string>
+    <string name="lock_numpad_random_off">Disabled</string>
+    <string name="lock_numpad_random_always">Always</string>
+    <string name="lock_numpad_random_on_request">On request</string>
+
+    <!-- Lockscreen See Through -->
+    <string name="see_through_title">See through</string>
+    <string name="see_through_summary">Shows the content behind your lockscreen, your data may be visible to those around you</string>
+
+    <!-- Low battery warning policy -->
+    <string name="pref_low_battery_warning_policy_title">Low battery warning</string>
+    <string name="pref_low_battery_warning_policy_dialog_title">Indicate low battery warning with</string>
+    <string name="low_battery_warning_policy_popup_sound">Pop-up and sound</string>
+    <string name="low_battery_warning_policy_notif_sound">Notification and sound</string>
+    <string name="low_battery_warning_policy_popup">Pop-up dialog only</string>
+    <string name="low_battery_warning_policy_notif">Notification only</string>
+    <string name="low_battery_warning_policy_sound">Sound only</string>
+    <string name="battery_prefs_title">Options</string>
+    <string name="battery_stats_title">Statistics</string>
+
+    <!-- Navigation bar -->
+    <string name="navbar_enable_bar">Enable navigation bar</string>
+    <string name="navbar_enable_bar_summary">Enable the navigation bar</string>
+    <string name="navbar_style_dimen_title">Dimensions</string>
+    <string name="navbar_dimensions_reset_message">Reset all dimensions entries to default?</string>
+    <string name="navigation_bar_height_title">Navigation bar height</string>
+    <string name="navigation_bar_height_summary">Navigation bar height while in portrait</string>
+    <string name="navigation_bar_width_title">Navigation bar width</string>
+    <string name="navigation_bar_width_summary">Navigation bar height if the bar is along a side</string>
+    <string name="navigation_bar_size_42_dp_default">42 dp (default)</string>
+    <string name="navigation_bar_size_36_dp">36 dp</string>
+    <string name="navigation_bar_size_30_dp">30 dp</string>
+    <string name="navigation_bar_size_24_dp">24 dp</string>
+    <string name="navigation_bar_size_48_dp_default">48 dp (default)</string>
+    <string name="navigation_bar_size_44_dp">44 dp</string>
+    <string name="navigation_bar_size_40_dp">40 dp</string>
+    <string name="navigation_bar_size_42_dp">42 dp</string>
+    <string name="navigation_bar_size_0_dp">0 dp (off)</string>
+
+    <!-- NavBar long press actions -->
+    <string name="navbar_long_press_title">Long press actions</string>
+    <string name="recent_long_press_title">Recent long press actions</string>
+    <string name="recent_long_press_none">None</string>
+    <string name="recent_long_press_last_app">Last app</string>
+    <string name="recent_long_press_screenshot">Screenshot</string>
+    <string name="recent_long_press_kill_app">Kill app</string>
+    <string name="recent_long_press_notif_panel">Notifications panel</string>
+    <string name="recent_long_press_qs_panel">QS panel</string>
+    <string name="recent_long_press_power_menu">Power menu</string>
+
+    <!-- Notification Header -->
+    <string name="custom_statusbar_header_title">Contextual notification panel header</string>
+    <string name="custom_statusbar_header_summary">Sets the background of the notification panel header to an image based on the current date and time</string>
+
+    <!-- XoplaX Update -->
+    <string name="xoplax_update_title">XoplaX Update</string>
+
+    <!-- XoplaX Settings screens  -->
+    <string name="interface_settings_title">XoplaX Settings</string>
+
+    <!-- XoplaX OS Version -->
+    <string name="xoplax_version">XoplaX OS Version</string>
+    <string name="xoplax_version_default">Unknown</string>
+
+    <!-- QS and navring last app -->
+    <string name="navring_action_last_app">Last app</string>
+
+    <!-- QS and navring Power menu -->
+    <string name="title_tile_power">Power Menu</string>
+    <string name="navring_action_power_menu">Power menu</string>
+
+     <!-- QuickSettings fliptiles -->
+    <string name="flip_qs_tiles_title">Flip tiles</string>
+    <string name="flip_qs_tiles_summary">Flips the tiles on touch</string>
+
+    <!--  Recents clear all -->
+    <string name="recents_panel_settings_title" >Recents panel settings</string>
+    <string name="show_recent_clear_all_button_title">Show clear all button</string>
+    <string name="show_recent_clear_all_button_summary">Tick to show or untick to hide the clear all button within the recent applications screen</string>
+    <string name="recent_clear_all_button_location_title">Clear all button position</string>
+    <string name="recent_clear_all_button_location_summary">Choose in which corner the clear all recent apps button is shown</string>
+    <string name="recent_clear_all_button_location_top_left">Top left</string>
+    <string name="recent_clear_all_button_location_top_right">Top right</string>
+    <string name="recent_clear_all_button_location_bottom_left">Bottom left</string>
+    <string name="recent_clear_all_button_location_bottom_right">Bottom right</string>
+
+    <!-- Settings main menu category heading. Rom (Launcher, Themes, System). [CHAR LIMIT=40] -->
+    <string name="header_category_rom_settings">Advanced settings</string>
+
+    <!-- Notification Drawer - Swipe to Switch full screen detection-->
+    <string name="title_full_screen_swipe">Swipe-to-Switch detection</string>
+    <string name="summary_full_screen_swipe">Use full screen detection for swipe to switch, not just the bottom bar</string>
+
+    <!-- Recents Ram Bar -->
+    <string name="ram_bar">Recents RAM bar</string>
+    <string name="ram_bar_note_title">Note</string>
+    <string name="ram_bar_note_summary">This RAM bar shows the actual android memory (RAM) utilization. Please note that having cached apps helps your device open apps much faster. For further explanations on how android memory (RAM) management works, check the help menu.</string>
+    <string name="ram_bar_mode_title">Recents RAM bar mode</string>
+    <string name="ram_bar_mode_dialog_title">Show on recents RAM bar</string>
+    <string name="ram_bar_none">None</string>
+    <string name="ram_bar_apps">Applications</string>
+    <string name="ram_bar_cache">Applications and cache</string>
+    <string name="ram_bar_other">Applications, cache and other</string>
+    <string name="ram_bar_style_cat">Recents RAM bar style</string>
+    <string name="ram_bar_color_app_mem_color">Applications RAM color</string>
+    <string name="ram_bar_color_cache_mem_color">Cache RAM color</string>
+    <string name="ram_bar_color_total_mem_color">Other RAM color</string>
+    <string name="ram_bar_color_enabled">Enabled</string>
+    <string name="ram_bar_color_disabled">Disabled</string>
+    <string name="ram_bar_button_help">Help</string>
+    <string name="ram_bar_button_reset">Reset colors</string>
+    <string name="ram_bar_reset">Reset</string>
+    <string name="ram_bar_reset_message">Reset RAM bar style to default?</string>
+    <string name="ram_bar_settings_category">Ram Bar Settings</string>
+
+    <!-- Smooth ProgressBar -->
+    <string name="progressbar_title">Custom ProgressBar</string>
+    <string name="progressbar_mirror_title">Mirror Mode</string>
+    <string name="progressbar_reverse_title">Reversed</string>
+    <string name="progressbar_speed_title">Speed</string>
+    <string name="progressbar_width_title">Stroke Width</string>
+    <string name="progressbar_length_title">Separator length</string>
+    <string name="progressbar_count_title">Sections Count</string>
+    <string name="progressbar_color_1_title">Color1</string>
+    <string name="progressbar_color_2_title">Color2</string>
+    <string name="progressbar_color_3_title">Color3</string>
+    <string name="progressbar_color_4_title">Color4</string>
+    <string name="sample_progressbar_text">ProgressBar : Preview</string>
+    <string name="progressbar_reset_message">Reset progress bar style to default?</string>
+
+    <!-- UI debug setting: show CPU info? [CHAR LIMIT=25] -->
+    <string name="show_cpu_info">Show CPU info</string>
+    <!-- UI debug setting: show cpu usage summary [CHAR LIMIT=50] -->
+    <string name="show_cpu_info_summary">Screen overlay showing current CPU info</string>
+
+    <!-- Volume steps -->
+    <string name="volume_steps_title">Volume steps</string>
+    <string name="volume_steps_summary">Fine grained control of volume for specified sound streams</string>
+    <string name="volume_steps_60">60</string>
+    <string name="volume_steps_45">45</string>
+    <string name="volume_steps_30">30</string>
+    <string name="volume_steps_15">15</string>
+    <string name="volume_steps_7">7</string>
+    <string name="volume_steps_5">5</string>
+
+</resources>
