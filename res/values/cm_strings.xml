@@ -854,7 +854,6 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
 
     <!-- Navigation Bar -->
     <string name="navigation_bar_category">Navigation bar</string>
-    <string name="navigation_bar_title">Buttons and layout</string>
     <string name="navigation_bar_left_title">Left-handed mode</string>
     <string name="navigation_bar_left_summary">Place the navigation bar on the left side of the screen in landscape mode</string>
     <string name="navigation_bar_help_text">1 - To begin editing, tap the lock icon\n\n2 - Tap any button to assign or change functionality\n\n3 - Long press any button to rearrange the order\n\n4 - To save, tap the lock icon again\n\n5 - To restore system default, tap the reset button\n\n</string>
@@ -971,6 +970,7 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
     <string name="status_bar_style_text">Text</string>
     <string name="status_bar_style_hidden">Hidden</string>
     <string name="status_bar_battery_show_percent_title">Show battery status percent</string>
+    <string name="status_bar_double_tap_to_sleep_title">Double-tap to sleep</string>
     <string name="status_bar_signal_text_title">Signal status style</string>
     <string name="status_bar_signal_style_icon">Icon</string>
     <string name="status_bar_signal_style_text">Text</string>

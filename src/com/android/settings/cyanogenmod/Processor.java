@@ -16,20 +16,28 @@
 
 package com.android.settings.cyanogenmod;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.SystemProperties;
 import android.os.SystemService;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.Runtime;
 
 //
@@ -48,7 +56,7 @@ public class Processor extends SettingsPreferenceFragment implements
     public static final String GOV_FILE = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor";
     public static final String FREQ_MIN_PREF = "pref_cpu_freq_min";
     public static final String FREQ_MAX_PREF = "pref_cpu_freq_max";
-    public static final String FREQ_LIST_FILE = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies";
+    public static final String FREQ_LIST_FILE = "/sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state";
     public static String FREQ_MAX_FILE = null;
     public static String FREQ_MIN_FILE = null;
     public static final String SOB_PREF = "pref_cpu_set_on_boot";
@@ -60,6 +68,8 @@ public class Processor extends SettingsPreferenceFragment implements
     private String mGovernorFormat;
     private String mMinFrequencyFormat;
     private String mMaxFrequencyFormat;
+
+    private PowerManager mPowerManager;
 
     private Preference mCurFrequencyPref;
     private ListPreference mGovernorPref;
@@ -108,6 +118,8 @@ public class Processor extends SettingsPreferenceFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
         initFreqCapFiles();
 
         mGovernorFormat = getString(R.string.cpu_governors_summary);
@@ -118,7 +130,7 @@ public class Processor extends SettingsPreferenceFragment implements
         String[] availableGovernors = new String[0];
         String[] frequencies;
         String availableGovernorsLine;
-        String availableFrequenciesLine;
+        String availableFrequenciesLines;
         String temp;
 
         addPreferencesFromResource(R.xml.processor_settings);
@@ -146,12 +158,15 @@ public class Processor extends SettingsPreferenceFragment implements
         }
 
         // Disable the min/max list if we dont have a list file
-        if (!Utils.fileExists(FREQ_LIST_FILE) || (availableFrequenciesLine = Utils.fileReadOneLine(FREQ_LIST_FILE)) == null) {
+        if (!Utils.fileExists(FREQ_LIST_FILE) || (availableFrequenciesLines = fileReadMoreLines(FREQ_LIST_FILE)) == null) {
             mMinFrequencyPref.setEnabled(false);
             mMaxFrequencyPref.setEnabled(false);
 
         } else {
-            availableFrequencies = availableFrequenciesLine.split(" ");
+            availableFrequencies = availableFrequenciesLines.split("\\r?\\n");
+            for (int i = 0; i < availableFrequencies.length; i++) {
+                availableFrequencies[i] = availableFrequencies[i].split(" ")[0];
+            }
 
             frequencies = new String[availableFrequencies.length];
             for (int i = 0; i < frequencies.length; i++) {
@@ -242,6 +257,14 @@ public class Processor extends SettingsPreferenceFragment implements
         if (newValue != null) {
             if (preference == mGovernorPref) {
                 fname = GOV_FILE;
+                // We need turn off active powersave mode
+                String currentGov = Utils.fileReadOneLine(GOV_FILE);
+                if (Settings.System.getInt(getActivity().getContentResolver(), Settings.System.POWER_SAVER_CPU_PROFILE, 0) != 0 && !currentGov.equals((String) newValue)) {
+                    Settings.System.putInt(getActivity().getContentResolver(), Settings.System.POWER_SAVER_CPU_PROFILE, 0);
+                    String [] pwrsvValue = getResources().getStringArray(com.android.internal.R.array.perf_profile_values);
+                    mPowerManager.setPowerProfile(pwrsvValue[1]);
+                    Toast.makeText(getActivity(), getString(R.string.power_saver_toggles_cpu_profile_toast), Toast.LENGTH_LONG).show();
+                }
             } else if (preference == mMinFrequencyPref) {
                 fname = FREQ_MIN_FILE;
             } else if (preference == mMaxFrequencyPref) {
@@ -320,6 +343,10 @@ public class Processor extends SettingsPreferenceFragment implements
 
                 if (preference == mGovernorPref) {
                     mGovernorPref.setSummary(String.format(mGovernorFormat, newValue));
+                    // We need update value
+                    if (Settings.System.getInt(getActivity().getContentResolver(), Settings.System.POWER_SAVER_CPU_GOVERNOR, 1) != 0) {
+                        Settings.System.putString(getActivity().getContentResolver(), Settings.System.POWER_SAVER_CPU_GOVERNOR_DEFAULT, (String) newValue);
+                    }
                 } else if (preference == mMinFrequencyPref) {
                     mMinFrequencyPref.setSummary(String.format(mMinFrequencyFormat,
                             toMHz(newValue)));
@@ -339,4 +366,21 @@ public class Processor extends SettingsPreferenceFragment implements
         return new StringBuilder().append(Integer.valueOf(mhzString) / 1000).append(" MHz")
                 .toString();
     }
-}
+
+    public String fileReadMoreLines(String filepath) {
+        try {
+            BufferedReader buffreader = new BufferedReader(new FileReader(filepath), 256);
+            String line;
+            StringBuilder text = new StringBuilder();
+            while ((line = buffreader.readLine()) != null) {
+                text.append(line);
+                text.append("\n");
+            }
+            buffreader.close();
+            return text.toString().trim();
+        } catch (Exception e) {
+            Log.e(TAG, "IO Exception when reading /sys/ file", e);
+        }
+        return null;
+    }
+} 

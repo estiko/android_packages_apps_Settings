@@ -109,12 +109,15 @@ public class InstalledAppDetails extends Fragment
     private IUsbManager mUsbManager;
     private AppWidgetManager mAppWidgetManager;
     private DevicePolicyManager mDpm;
+    private INotificationManager mNotificationManager;
     private ISms mSmsManager;
     private ApplicationsState mState;
     private ApplicationsState.Session mSession;
     private ApplicationsState.AppEntry mAppEntry;
     private boolean mInitialized;
     private boolean mShowUninstalled;
+    private boolean mHaloPolicyIsBlack = true;
+    private boolean mFloatingWinIsBlack = true;
     private PackageInfo mPackageInfo;
     private CanBeOnSdCardChecker mCanBeOnSdCardChecker;
     private View mRootView;
@@ -144,6 +147,9 @@ public class InstalledAppDetails extends Fragment
     private Button mMoveAppButton;
     private CompoundButton mNotificationSwitch;
     private CompoundButton mPrivacyGuardSwitch;
+    private CompoundButton mHeadsUpSwitch;
+    private CompoundButton mHaloState;
+    private CompoundButton mFloatingWinState;
 
     private PackageMoveObserver mPackageMoveObserver;
     private AppOpsManager mAppOps;
@@ -422,21 +428,39 @@ public class InstalledAppDetails extends Fragment
     }
 
     private void initNotificationButton() {
-        INotificationManager nm = INotificationManager.Stub.asInterface(
-                ServiceManager.getService(Context.NOTIFICATION_SERVICE));
         boolean enabled = true; // default on
+        boolean allowedForHalo = true; // default on
+        boolean allowedForFloatingWin = true; // default on
         try {
-            enabled = nm.areNotificationsEnabledForPackage(mAppEntry.info.packageName,
+            enabled = mNotificationManager.areNotificationsEnabledForPackage(mAppEntry.info.packageName,
                     mAppEntry.info.uid);
+            allowedForHalo = mNotificationManager.isPackageAllowedForHalo(mAppEntry.info.packageName);
+            allowedForFloatingWin = mNotificationManager
+                    .isPackageAllowedForFloatingMode(mAppEntry.info.packageName);
         } catch (android.os.RemoteException ex) {
             // this does not bode well
         }
         mNotificationSwitch.setChecked(enabled);
+        mHaloState.setChecked((mHaloPolicyIsBlack ? !allowedForHalo : allowedForHalo));
+        mHaloState.setOnCheckedChangeListener(this);
+        mFloatingWinState.setChecked((mFloatingWinIsBlack ? !allowedForFloatingWin : allowedForFloatingWin));
+        mFloatingWinState.setOnCheckedChangeListener(this);
         if (isThisASystemPackage()) {
             mNotificationSwitch.setEnabled(false);
         } else {
             mNotificationSwitch.setEnabled(true);
             mNotificationSwitch.setOnCheckedChangeListener(this);
+        }
+    }
+
+    private void initHeadsUpButton() {
+        boolean enabled = mPm.getHeadsUpSetting(mAppEntry.info.packageName);
+        mHeadsUpSwitch.setChecked(enabled);
+        if (isThisASystemPackage() || !mNotificationSwitch.isChecked()) {
+            mHeadsUpSwitch.setEnabled(false);
+        } else {
+            mHeadsUpSwitch.setEnabled(true);
+            mHeadsUpSwitch.setOnCheckedChangeListener(this);
         }
     }
 
@@ -465,8 +489,16 @@ public class InstalledAppDetails extends Fragment
         mAppWidgetManager = AppWidgetManager.getInstance(getActivity());
         mDpm = (DevicePolicyManager)getActivity().getSystemService(Context.DEVICE_POLICY_SERVICE);
         mSmsManager = ISms.Stub.asInterface(ServiceManager.getService("isms"));
+        mNotificationManager = INotificationManager.Stub.asInterface(
+                ServiceManager.getService(Context.NOTIFICATION_SERVICE));
 
         mCanBeOnSdCardChecker = new CanBeOnSdCardChecker();
+
+        try {
+            mHaloPolicyIsBlack = mNotificationManager.isHaloPolicyBlack();
+        } catch (android.os.RemoteException ex) {
+            // System dead
+        }
 
         // Need to make sure we have loaded applications at this point.
         mSession.resume();
@@ -528,6 +560,13 @@ public class InstalledAppDetails extends Fragment
         
         mNotificationSwitch = (CompoundButton) view.findViewById(R.id.notification_switch);
         mPrivacyGuardSwitch = (CompoundButton) view.findViewById(R.id.privacy_guard_switch);
+        mHeadsUpSwitch = (CompoundButton) view.findViewById(R.id.heads_up_switch);
+
+        mFloatingWinState = (CompoundButton) view.findViewById(R.id.floatingwin_state);
+        mFloatingWinState.setText((mFloatingWinIsBlack ? R.string.floating_blacklist_label : R.string.floating_whitelist_label));
+
+        mHaloState = (CompoundButton) view.findViewById(R.id.halo_state);
+        mHaloState.setText((mHaloPolicyIsBlack ? R.string.app_halo_label_black : R.string.app_halo_label_white));
 
         return view;
     }
@@ -987,6 +1026,7 @@ public class InstalledAppDetails extends Fragment
         // only setup the privacy guard setting if we didn't get uninstalled
         if (!mMoveInProgress) {
             initPrivacyGuardButton();
+            initHeadsUpButton();
         }
 
         return true;
@@ -1312,7 +1352,12 @@ public class InstalledAppDetails extends Fragment
                     .setNegativeButton(R.string.dlg_cancel,
                         new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
+                            // Re-enable the checkbox 	1264
+                            getOwner().mNotificationSwitch.setChecked(true);
+                            // Give access to heads up check box.
+                            if (getOwner().mHeadsUpSwitch != null) {
+                                getOwner().mHeadsUpSwitch.setEnabled(true);
+                            }
                         }
                     })
                     .create();
@@ -1449,20 +1494,40 @@ public class InstalledAppDetails extends Fragment
     }
 
     private void setNotificationsEnabled(boolean enabled) {
-        String packageName = mAppEntry.info.packageName;
-        INotificationManager nm = INotificationManager.Stub.asInterface(
-                ServiceManager.getService(Context.NOTIFICATION_SERVICE));
         try {
             final boolean enable = mNotificationSwitch.isChecked();
-            nm.setNotificationsEnabledForPackage(packageName, mAppEntry.info.uid, enabled);
+            mNotificationManager.setNotificationsEnabledForPackage(
+                    mAppEntry.info.packageName, mAppEntry.info.uid, enabled);
+            if (mHeadsUpSwitch != null) {
+                mHeadsUpSwitch.setEnabled(enable);
+            }
         } catch (android.os.RemoteException ex) {
             mNotificationSwitch.setChecked(!enabled); // revert
+            if (mHeadsUpSwitch != null) {
+                mHeadsUpSwitch.setEnabled(enable);
+            }
         }
     }
 
     private void setPrivacyGuard(boolean enabled) {
         mAppOps.setPrivacyGuardSettingForPackage(
             mAppEntry.info.uid, mAppEntry.info.packageName, enabled);
+    }
+
+    private void setFloatingModeState(boolean state) {
+        try {
+            mNotificationManager.setFloatingModeBlacklistStatus(mAppEntry.info.packageName, state);
+        } catch (android.os.RemoteException ex) {
+            mFloatingWinState.setChecked(!state); // revert
+        }
+    }
+
+    private void setHaloState(boolean state) {
+        try {
+            mNotificationManager.setHaloStatus(mAppEntry.info.packageName, state);
+        } catch (android.os.RemoteException ex) {
+            mHaloState.setChecked(!state); // revert
+        }
     }
 
     private int getPremiumSmsPermission(String packageName) {
@@ -1568,6 +1633,12 @@ public class InstalledAppDetails extends Fragment
             } else {
                 setPrivacyGuard(false);
             }
+        } else if (buttonView == mHeadsUpSwitch) {
+            mPm.setHeadsUpSetting(packageName, isChecked);
+        } else if (buttonView == mFloatingWinState) {
+            setFloatingModeState(isChecked);
+        } else if (buttonView == mHaloState) {
+            setHaloState(isChecked);
         }
     }
 }

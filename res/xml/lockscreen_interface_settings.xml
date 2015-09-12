@@ -22,13 +22,6 @@
         android:title="@string/title_general"
         android:key="lockscreen_general_category" >
 
-        <PreferenceScreen
-            android:key="screen_security"
-            android:fragment="com.android.settings.LockscreenSecuritySettings"
-            android:title="@string/screen_security_category"
-            android:summary="@string/screen_security_summary">
-        </PreferenceScreen>
-
         <ListPreference
             android:key="lockscreen_battery_status"
             android:persistent="false"
@@ -101,6 +94,25 @@
         android:title="@string/misc_category"
         android:key="lockscreen_misc_category" >
 
+        <!-- Battery around unlock ring -->
+        <com.android.settings.xoplax.util.XoplaXSettingCheckBoxPreference
+            android:key="battery_around_lockscreen_ring"
+            android:title="@string/battery_around_lockscreen_ring"
+            android:summary="@string/battery_around_lockscreen_ring_summary"
+            android:defaultValue="false" />
+
+        <!-- Smart cover lockscreen bypass -->
+        <com.android.settings.xoplax.util.XoplaXSettingCheckBoxPreference
+            android:key="bypass_insecure_lockscreen"
+            android:title="@string/bypass_insecure_lockscreen_title"
+            android:summary="@string/bypass_insecure_lockscreen_summary"/>
+
+        <!-- See Through -->
+        <CheckBoxPreference
+            android:key="lockscreen_see_through"
+            android:title="@string/see_through_title"
+            android:summary="@string/see_through_summary" />
+
       <!-- Blur Effect -->
         <SeekBarPreference
             android:key="lockscreen_blur_radius"
@@ -109,11 +121,18 @@
             android:max="25"
             android:defaultValue="12" />
 
-        <!-- See Through -->
+        <!-- Glowpad doubletap gesture -->
         <CheckBoxPreference
-            android:key="lockscreen_see_through"
-            android:title="@string/see_through_title"
-            android:summary="@string/see_through_summary" />
+            android:key="glowpad_doubletap"
+            android:title="@string/lockscreen_glowpad_doubletap_checkbox_title" />
+
+        <ListPreference
+            android:key="glowpad_doubletap_option"
+            android:title="@string/lockscreen_glowpad_doubletap_title"
+            android:entries="@array/glowpad_doubletap_option_entries"
+            android:entryValues="@array/glowpad_doubletap_option_values"
+            android:dependency="glowpad_doubletap"
+            android:persistent="false" />
 
     </PreferenceCategory>
 

@@ -70,6 +70,28 @@
                 android:layout_marginTop="4dip"
                 android:text="@string/privacy_guard_switch_label" />
 
+            <!-- Enable heads up for an application -->
+            <CheckBox android:id="@+id/heads_up_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="4dip"
+                android:text="@string/heads_up_switch_label" />
+
+            <!-- HALO notification state for this package -->
+            <CheckBox android:id="@+id/halo_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="4dip" />
+
+            <!-- Floating Window state for this package -->
+            <CheckBox android:id="@+id/floatingwin_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="4dip" />
+
         </LinearLayout>
 
         <TextView

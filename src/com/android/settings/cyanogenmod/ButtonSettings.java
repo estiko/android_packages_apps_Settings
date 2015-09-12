@@ -16,18 +16,20 @@
 
 package com.android.settings.cyanogenmod;
 
-import android.content.ComponentName;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -46,9 +48,9 @@ import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 
-import org.cyanogenmod.hardware.KeyDisabler;
+import com.android.internal.util.xoplax.XoplaXActions;
 
-import java.util.List;
+import org.cyanogenmod.hardware.KeyDisabler;
 
 public class ButtonSettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
@@ -67,8 +69,8 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     private static final String KEY_VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
     private static final String KEY_BLUETOOTH_INPUT_SETTINGS = "bluetooth_input_settings";
     private static final String KEY_NAVIGATION_BAR_LEFT = "navigation_bar_left";
-    private static final String KEY_NAVIGATION_RECENTS_LONG_PRESS = "navigation_recents_long_press";
     //private static final String DISABLE_NAV_KEYS = "disable_nav_keys";
+    private static final String ENABLE_NAV_BAR = "enable_nav_bar";
     private static final String KEY_POWER_END_CALL = "power_end_call";
     private static final String KEY_HOME_ANSWER_CALL = "home_answer_call";
 
@@ -104,6 +106,8 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     public static final int KEY_MASK_APP_SWITCH = 0x10;
     public static final int KEY_MASK_CAMERA = 0x20;
 
+    private static final int DLG_NAVIGATION_WARNING = 0;
+
     private ListPreference mHomeLongPressAction;
     private ListPreference mHomeDoubleTapAction;
     private ListPreference mMenuPressAction;
@@ -120,15 +124,31 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     //private CheckBoxPreference mDisableNavigationKeys;
     private CheckBoxPreference mPowerEndCall;
     private CheckBoxPreference mHomeAnswerCall;
-    private CheckBoxPreference mNavigationBarLeftPref;
-    private ListPreference mNavigationRecentsLongPressAction;
-
-    private PreferenceCategory mNavigationPreferencesCat;
 
     private Handler mHandler;
 
     // Enable/disable nav bar
     private CheckBoxPreference mEnableNavigationBar;
+
+    private SettingsObserver mSettingsObserver = new SettingsObserver(new Handler());
+    private final class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = getActivity().getContentResolver();
+            resolver.registerContentObserver(Settings.XOPLAX.getUriFor(
+                    Settings.XOPLAX.NAVIGATION_BAR_SHOW), false, this,
+                    UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            updateSettings();
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -178,29 +198,21 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         // mDisableNavigationKeys = (CheckBoxPreference) findPreference(DISABLE_NAV_KEYS);
         mEnableNavigationBar = (CheckBoxPreference) findPreference(ENABLE_NAV_BAR);
 
-        mNavigationPreferencesCat = (PreferenceCategory) findPreference(CATEGORY_NAVBAR);
-
-        // Navigation bar left
-        mNavigationBarLeftPref = (CheckBoxPreference) findPreference(KEY_NAVIGATION_BAR_LEFT);
-
         // Booleans to enable/disable nav bar
         // overriding overlays
         boolean hasNavBarByDefault = getResources().getBoolean(
                   com.android.internal.R.bool.config_showNavigationBar);
-        boolean enableNavigationBar = Settings.System.getInt(getContentResolver(),
-                  Settings.System.NAVIGATION_BAR_SHOW, hasNavBarByDefault ? 1 : 0) == 1;
+        boolean enableNavigationBar = Settings.XOPLAX.getInt(getContentResolver(),
+                  Settings.XOPLAX.NAVIGATION_BAR_SHOW, hasNavBarByDefault ? 1 : 0) == 1;
         mEnableNavigationBar.setChecked(enableNavigationBar);
         mEnableNavigationBar.setOnPreferenceChangeListener(this);
 
-        updateNavbarPreferences(enableNavigationBar);
-
-        // Navigation bar recents long press activity needs custom setup
-        mNavigationRecentsLongPressAction = initRecentsLongPressAction(KEY_NAVIGATION_RECENTS_LONG_PRESS);
+        updateSettings();
 
         // Only visible on devices that does not have a navigation bar already,
         // and don't even try unless the existing keys can be disabled
         boolean needsNavigationBar = false;
-        if (isKeyDisablerSupported()) {
+        if (KeyDisabler.isSupported()) {
             try {
                 IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
                 needsNavigationBar = wm.hasNavigationBar();
@@ -212,7 +224,6 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
             } else {
                 // Remove keys that can be provided by the navbar
                 updateDisableNavkeysOption();
-                mNavigationPreferencesCat.setEnabled(mDisableNavigationKeys.isChecked());
             }
         } else {
             prefScreen.removePreference(mEnableNavigationBar);
@@ -349,18 +360,14 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         try {
             // Only show the navigation bar category on devices that has a navigation bar
             // unless we are forcing it via development settings
-            boolean forceNavbar = android.provider.Settings.System.getInt(getContentResolver(),
-                    android.provider.Settings.System.NAVIGATION_BAR_SHOW, 0) == 1;
+            boolean forceNavbar = android.provider.Settings.XOPLAX.getInt(getContentResolver(),
+                    android.provider.Settings.XOPLAX.NAVIGATION_BAR_SHOW, 0) == 1;
             boolean hasNavBar = WindowManagerGlobal.getWindowManagerService().hasNavigationBar()
                     || forceNavbar;
 
-            if (!Utils.isPhone(getActivity())) {
-                mNavigationPreferencesCat.removePreference(mNavigationBarLeftPref);
-            }
-
-            if (!hasNavBar && (needsNavigationBar || !isKeyDisablerSupported())) {
+            if (!hasNavBar) {
                 // Hide navigation bar category
-                prefScreen.removePreference(mNavigationPreferencesCat);
+                prefScreen.removePreference(findPreference(CATEGORY_NAVBAR));
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Error getting navigation bar status");
@@ -379,6 +386,8 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        updateSettings();
+        mSettingsObserver.observe();
 
         // Power button ends calls.
         if (mPowerEndCall != null) {
@@ -401,73 +410,26 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().getContentResolver().unregisterContentObserver(mSettingsObserver);
+    }
+
+    private void updateSettings() {
+        boolean enableNavigationBar = Settings.XOPLAX.getInt(getContentResolver(),
+                Settings.XOPLAX.NAVIGATION_BAR_SHOW,
+                SlimActions.isNavBarDefault(getActivity()) ? 1 : 0) == 1;
+        mEnableNavigationBar.setChecked(enableNavigationBar);
+
+        updateNavbarPreferences(enableNavigationBar);
+    }
+
     private ListPreference initActionList(String key, int value) {
         ListPreference list = (ListPreference) getPreferenceScreen().findPreference(key);
         list.setValue(Integer.toString(value));
         list.setSummary(list.getEntry());
         list.setOnPreferenceChangeListener(this);
-        return list;
-    }
-
-    private ListPreference initRecentsLongPressAction(String key) {
-        ListPreference list = (ListPreference) getPreferenceScreen().findPreference(key);
-        list.setOnPreferenceChangeListener(this);
-
-        // Read the componentName from Settings.Secure, this is the user's prefered setting
-        String componentString = Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY);
-        ComponentName targetComponent = null;
-        if (componentString == null) {
-            list.setSummary(getString(R.string.hardware_keys_action_last_app));
-        } else {
-            targetComponent = ComponentName.unflattenFromString(componentString);
-        }
-
-        // Dyanamically generate the list array, query PackageManager for all Activites that are registered for
-        // ACTION_RECENTS_LONG_PRESS
-        PackageManager pm = getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_RECENTS_LONG_PRESS);
-        List<ResolveInfo> recentsActivities = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        if (recentsActivities.size() == 0) {
-            // No entries available, disable
-            list.setSummary(getString(R.string.hardware_keys_action_last_app));
-            Settings.Secure.putString(getContentResolver(), Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY, null);
-            list.setEnabled(false);
-            return list;
-        }
-
-        CharSequence[] entries = new CharSequence[recentsActivities.size() + 1];
-        CharSequence[] values = new CharSequence[recentsActivities.size() + 1];
-        // First entry is always default last app
-        entries[0] = getString(R.string.hardware_keys_action_last_app);
-        values[0] = "";
-        list.setValue(values[0].toString());
-        int i = 1;
-        for (ResolveInfo info : recentsActivities) {
-            try {
-                // Use pm.getApplicationInfo for the label, we cannot rely on ResolveInfo that comes back from
-                // queryIntentActivities.
-                entries[i] = pm.getApplicationInfo(info.activityInfo.packageName, 0).loadLabel(pm);
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Error package not found: " + info.activityInfo.packageName, e);
-                // Fallback to package name
-                entries[i] = info.activityInfo.packageName;
-            }
-
-            // Set the value to the ComponentName that will handle this intent
-            ComponentName entryComponent = new ComponentName(info.activityInfo.packageName, info.activityInfo.name);
-            values[i] = entryComponent.flattenToString();
-            if (targetComponent != null) {
-                if (entryComponent.equals(targetComponent)) {
-                    // Update the selected value and the preference summary
-                    list.setSummary(entries[i]);
-                    list.setValue(values[i].toString());
-                }
-            }
-            i++;
-        }
-        list.setEntries(entries);
-        list.setEntryValues(values);
         return list;
     }
 
@@ -522,25 +484,16 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
             return true;
         // Enable/disbale nav bar (used in custom nav bar dimensions)
         } else if (preference == mEnableNavigationBar) {
-            Settings.System.putInt(getActivity().getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_SHOW,
+            if (!((Boolean) newValue) && !SlimActions.isPieEnabled(getActivity())
+                    && SlimActions.isNavBarDefault(getActivity())) {
+                    showDialogInner(DLG_NAVIGATION_WARNING);
+                return true;
+            }
+            Settings.XOPLAX.putInt(getActivity().getContentResolver(),
+                    Settings.XOPLAX.NAVIGATION_BAR_SHOW,
                     ((Boolean) newValue) ? 1 : 0);
             updateNavbarPreferences((Boolean) newValue);
           return true;
-        } else if (preference == mNavigationRecentsLongPressAction) {
-            // RecentsLongPressAction is handled differently because it intentionally uses Settings.Secure over
-            // Settings.System.
-            String putString = (String) newValue;
-            int index = mNavigationRecentsLongPressAction.findIndexOfValue(putString);
-            CharSequence summary = mNavigationRecentsLongPressAction.getEntries()[index];
-            // Update the summary
-            mNavigationRecentsLongPressAction.setSummary(summary);
-
-            if (putString.length() == 0) {
-                putString = null;
-            }
-            Settings.Secure.putString(getContentResolver(), Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY, putString);
-            return true;
         }
 
         return false;
@@ -551,8 +504,8 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         final int defaultBrightness = context.getResources().getInteger(
                 com.android.internal.R.integer.config_buttonBrightnessSettingDefault);
 
-        Settings.System.putInt(context.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, enabled ? 1 : 0);
+        Settings.XOPLAX.putInt(context.getContentResolver(),
+                Settings.XOPLAX.NAVIGATION_BAR_SHOW, enabled ? 1 : 0);
         KeyDisabler.setActive(enabled);
 
         /* Save/restore button timeouts to disable them in softkey mode */
@@ -568,8 +521,8 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     }
 
     private void updateDisableNavkeysOption() {
-        boolean enabled = Settings.System.getInt(getActivity().getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, 0) != 0;
+        boolean enabled = Settings.XOPLAX.getInt(getActivity().getContentResolver(),
+                Settings.XOPLAX.NAVIGATION_BAR_SHOW, 0) != 0;
 
         mEnableNavigationBar.setChecked(enabled);
 
@@ -610,12 +563,12 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     }
 
     public static void restoreKeyDisabler(Context context) {
-        if (!isKeyDisablerSupported()) {
+        if (!KeyDisabler.isSupported()) {
             return;
         }
 
-        writeDisableNavkeysOption(context, Settings.System.getInt(context.getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, 0) != 0);
+        writeDisableNavkeysOption(context, Settings.XOPLAX.getInt(context.getContentResolver(),
+                Settings.XOPLAX.NAVIGATION_BAR_SHOW, 0) != 0);
     }
 
 
@@ -676,5 +629,66 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
                 Settings.Secure.RING_HOME_BUTTON_BEHAVIOR, (mHomeAnswerCall.isChecked()
                         ? Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_ANSWER
                         : Settings.Secure.RING_HOME_BUTTON_BEHAVIOR_DO_NOTHING));
+    }
+
+    private void showDialogInner(int id) {
+        DialogFragment newFragment = MyAlertDialogFragment.newInstance(id);
+        newFragment.setTargetFragment(this, 0);
+        newFragment.show(getFragmentManager(), "dialog " + id);
+    }
+
+    public static class MyAlertDialogFragment extends DialogFragment {
+
+        public static MyAlertDialogFragment newInstance(int id) {
+            MyAlertDialogFragment frag = new MyAlertDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt("id", id);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        ButtonSettings getOwner() {
+           return (ButtonSettings) getTargetFragment();
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            int id = getArguments().getInt("id");
+            switch (id) {
+                case DLG_NAVIGATION_WARNING:
+                    return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.attention)
+                    .setMessage(R.string.navigation_bar_warning_no_navigation_present)
+                    .setNegativeButton(R.string.dlg_cancel,
+                        new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setPositiveButton(R.string.dlg_ok,
+                        new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Settings.XOPLAX.putInt(getActivity().getContentResolver(),
+                                    Settings.XOPLAX.PIE_CONTROLS, 1);
+                            Settings.XOPLAX.putInt(getActivity().getContentResolver(),
+                                    Settings.XOPLAX.NAVIGATION_BAR_SHOW, 0);
+                            getOwner().updateNavbarPreferences(false);
+                        }
+                    })
+                    .create();
+            }
+            throw new IllegalArgumentException("unknown id " + id);
+        }
+
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            int id = getArguments().getInt("id");
+            switch (id) {
+                case DLG_NAVIGATION_WARNING:
+                    getOwner().mEnableNavigationBar.setChecked(true);
+                    getOwner().updateNavbarPreferences(true);
+                    break;
+            }
+        }
     }
 }

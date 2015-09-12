@@ -31,6 +31,9 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
     private static final String TAG = "NotificationDrawer";
 
+    // Default timeout for heads up snooze. 5 minutes.
+    protected static final int DEFAULT_TIME_HEADS_UP_SNOOZE = 300000;
+
     private static final String UI_COLLAPSE_BEHAVIOUR = "notification_drawer_collapse_on_dismiss";
     private static final String STATUS_BAR_CUSTOM_HEADER = "custom_status_bar_header";
     private static final String SWIPE_TO_SWITCH_SCREEN_DETECTION = "full_swipe_to_switch_detection";
@@ -52,6 +55,7 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
         mCollapseOnDismiss = (ListPreference) findPreference(UI_COLLAPSE_BEHAVIOUR);
         mCollapseOnDismiss.setValue(String.valueOf(collapseBehaviour));
         mCollapseOnDismiss.setOnPreferenceChangeListener(this);
+
         updateCollapseBehaviourSummary(collapseBehaviour);
 
         mStatusBarCustomHeader = (CheckBoxPreference) findPreference(STATUS_BAR_CUSTOM_HEADER);
@@ -60,8 +64,8 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
         mStatusBarCustomHeader.setOnPreferenceChangeListener(this);
 
         mFullScreenDetection = (CheckBoxPreference) findPreference(SWIPE_TO_SWITCH_SCREEN_DETECTION);
-        mFullScreenDetection.setChecked(Settings.System.getInt(getContentResolver(),
-                Settings.System.SWIPE_TO_SWITCH_SCREEN_DETECTION, 0) == 1);
+        mFullScreenDetection.setChecked(Settings.XOPLAX.getInt(getContentResolver(),
+                Settings.XOPLAX.SWIPE_TO_SWITCH_SCREEN_DETECTION, 0) == 1);
         mFullScreenDetection.setOnPreferenceChangeListener(this);
     }
 
@@ -74,13 +78,13 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
             return true;
         } else if (preference == mStatusBarCustomHeader) {
             boolean value = (Boolean) objValue;
-            Settings.System.putInt(getContentResolver(),
-                Settings.System.STATUS_BAR_CUSTOM_HEADER, value ? 1 : 0);
+            Settings.XOPLAX.putInt(getContentResolver(),
+                Settings.XOPLAX.STATUS_BAR_CUSTOM_HEADER, value ? 1 : 0);
             return true;
         } else if (preference == mFullScreenDetection) {
             boolean value = (Boolean) objValue;
-            Settings.System.putInt(getContentResolver(),
-                Settings.System.SWIPE_TO_SWITCH_SCREEN_DETECTION, value ? 1 : 0);
+            Settings.XOPLAX.putInt(getContentResolver(),
+                Settings.XOPLAX.SWIPE_TO_SWITCH_SCREEN_DETECTION, value ? 1 : 0);
             return true;
         }
 

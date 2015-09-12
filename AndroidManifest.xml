@@ -73,6 +73,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_BLACKLIST" />
     <uses-permission android:name="android.permission.CHANGE_PHONE_BLACKLIST" />
     <uses-permission android:name="com.cyanogen.permission.REQUEST_KILL_SWITCH_OP" />
+    <uses-permission android:name="android.permission.CHANGE_HEADS_UP_STATE" />
 
     <permission
         android:name="android.permission.REQUEST_SUPERUSER"
@@ -1218,6 +1219,8 @@
         <!-- Lock screen settings -->
         <activity android:name="ConfirmLockPattern"/>
 
+        <activity android:name="ConfirmLockGesture"/>
+
         <activity android:name="ConfirmLockPassword"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
 
@@ -1238,6 +1241,8 @@
         <activity android:name="ChooseLockPatternSize" android:exported="false"/>
 
         <activity android:name="ChooseLockPattern" android:exported="false"/>
+
+        <activity android:name="ChooseLockGesture" android:exported="false"/>
 
         <activity android:name="ChooseLockPassword" android:exported="false"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
@@ -1799,14 +1804,81 @@
                 android:resource="@+id/xoplax_ui_settings" />
         </activity>
 
+        <!-- Animation Settings -->
+        <activity android:name=".xoplax.AnimationSettings" />
+        <activity android:name=".xoplax.animations.KeyboardAnimationInterfaceSettings" />
+        <activity android:name=".xoplax.animations.ListViewAnimationInterfaceSettings" />
+        <activity android:name=".xoplax.animations.ScrollAnimationInterfaceSettings" />
+        <activity android:name=".xoplax.animations.SystemAnimationInterfaceSettings" />
+        <activity android:name=".xoplax.animations.ToastAnimationInterfaceSettings" />
+
+        <!-- Dynamic Status Bar -->
+        <activity android:name=".xoplax.DSBSettings" />
+
+        <!-- Gesture Anywhere -->
+        <activity android:name=".xoplax.gestureanywhere.GestureAnywhereBuilderActivity" />
+        <activity android:name=".xoplax.gestureanywhere.GestureAnywhereCreateGestureActivity" />
+        <activity android:name=".xoplax.gestureanywhere.GestureAnywhereSettings" />
+
+        <!-- Halo -->
+        <activity android:name=".xoplax.Halo" />
+        <activity android:name="Settings$HaloActivity"
+                android:label="@string/title_tile_halo"
+                android:taskAffinity=""
+                android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.xoplax.Halo" />
+        </activity>
+
+        <!-- Heads Up -->
+        <activity android:name=".xoplax.headsup.HeadsUp" />
+
+        <!-- Input Methods Settings -->
+        <activity android:name=".xoplax.InputMethodsSettings" />
+
+        <!-- Lockscreen Notifications -->
         <activity
             android:name=".xoplax.lsn.LockscreenNotifications"
             android:label="@string/Lockscreen_notifications_header" >
         </activity>
 
-        <activity android:name=".xoplax.RamBar" />
+        <!-- Nav Bar -->
+        <activity android:name=".xoplax.navbar.ArrangeNavbarFragment" />
+        <activity android:name=".xoplax.navbar.NavbarSettingsFragment" />
+        <activity android:name=".xoplax.navbar.NavbarTabHostFragment" />
 
-        <!-- Pseudo-activity used to provide an intent-filter entry point to ass display rotation config -->
+        <!-- Notification Drawer Style -->
+        <activity android:name=".xoplax.NotificationDrawerStyle" />
+
+        <!-- Partition Info -->
+        <activity android:name=".xoplax.PartitionInfo"
+                android:label="@string/partition_info_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE_LAUNCH" />
+             </intent-filter>
+        </activity>
+
+        <!-- Power Saver Settings -->
+        <activity
+            android:name=".xoplax.PowerSaverSettings"
+            android:label="@string/power_saver_settings_title" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SHORTCUT" />
+              </intent-filter>
+        </activity>
+
+        <!-- Progress Bar -->
+        <activity android:name=".xoplax.ProgressBar" />
+
+        <!-- Ram bar -->
+        <activity android:name=".xoplax.RamBar" />
         <activity android:name="Settings$ASSRamBarActivity"
                 android:label="@string/ram_bar">
             <intent-filter>
@@ -1815,6 +1887,24 @@
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.xoplax.RamBar" />
+        </activity>
+
+        <!-- Recents Panel Settings -->
+        <activity android:name=".xoplax.RecentsPanelSettings" />
+
+        <!-- Screen Recorder -->
+        <activity android:name=".xoplax.ScreenRecorderSettings" />
+
+        <!-- Volume Step -->
+        <activity android:name=".xoplax.VolumeSteps" />
+
+        <!-- Wakelock Blocker -->
+        <activity
+            android:name=".xoplax.WakeLockBlocker"
+            android:label="@string/wakelock_blocker" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
 
         <!-- XoplaX OS activities End -->
@@ -2170,6 +2260,24 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- Anonymous Statistics -->
+        <receiver android:name=".cmstats.ReportingServiceManager"
+            android:enabled="true"
+            android:exported="false"
+            android:label="ReportingServiceManager">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:label="ReportingService"
+            android:enabled="true"
+            android:exported="false"
+            android:name=".cmstats.ReportingService">
+        </service>
+
 
         <!-- Watch for ContactsContract.Profile changes and update the user's photo.  -->
         <receiver android:name=".users.ProfileUpdateReceiver">

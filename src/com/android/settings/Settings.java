@@ -87,18 +87,11 @@ import com.android.settings.applications.ProcessStatsUi;
 import com.android.settings.blacklist.BlacklistSettings;
 import com.android.settings.bluetooth.BluetoothEnabler;
 import com.android.settings.bluetooth.BluetoothSettings;
-import com.android.settings.cyanogenmod.ButtonSettings;
-import com.android.settings.cyanogenmod.LockscreenInterface;
-import com.android.settings.cyanogenmod.NavBar;
-import com.android.settings.cyanogenmod.NavRing;
 import com.android.settings.cyanogenmod.PerformanceSettings;
-import com.android.settings.cyanogenmod.StatusBar;
-import com.android.settings.cyanogenmod.NotificationDrawer;
 import com.android.settings.cyanogenmod.superuser.PolicyNativeFragment;
 import com.android.settings.deviceinfo.Memory;
 import com.android.settings.deviceinfo.UsbSettings;
 import com.android.settings.fuelgauge.PowerUsageSummary;
-import com.android.settings.headsup.HeadsUpSettings;
 import com.android.settings.inputmethod.InputMethodAndLanguageSettings;
 import com.android.settings.inputmethod.KeyboardLayoutPickerFragment;
 import com.android.settings.inputmethod.SpellCheckersSettings;
@@ -207,12 +200,8 @@ public class Settings extends PreferenceActivity
             R.id.nfc_payment_settings,
             R.id.home_settings,
             R.id.interface_section,
-            R.id.status_bar_settings,
-            R.id.notification_bar_settings,
-            R.id.lock_screen_settings,
             R.id.xoplax_ui_settings,
             R.id.privacy_settings_cyanogenmod,
-            R.id.button_settings
     };
 
     private SharedPreferences mDevelopmentPreferences;
@@ -484,11 +473,7 @@ public class Settings extends PreferenceActivity
         BlacklistSettings.class.getName(),
         ApnSettings.class.getName(),
         HomeSettings.class.getName(),
-        LockscreenInterface.class.getName(),
         XoplaXUiSettings.class.getName(),
-        StatusBar.class.getName(),
-        NotificationDrawer.class.getName(),
-        ButtonSettings.class.getName(),
         ProfilesSettings.class.getName(),
         PerformanceSettings.class.getName(),
         PolicyNativeFragment.class.getName(),
@@ -496,6 +481,7 @@ public class Settings extends PreferenceActivity
         com.android.settings.quicksettings.QuickSettingsTiles.class.getName(),
         com.android.settings.cyanogenmod.QuietHours.class.getName(),
         ThemeSettings.class.getName(),
+        com.android.settings.xoplax.Halo.class.getName()
         com.android.settings.wifi.WifiApSettings.class.getName()
     };
 
@@ -1416,4 +1402,5 @@ public class Settings extends PreferenceActivity
     public static class WifiApSettingsActivity extends Settings { /* empty */ }
     public static class LockscreenInterfaceActivity extends Settings { /* empty */ }
     public static class ASSRamBarActivity extends Settings { /* empty */ }
+    public static class HaloActivity extends Settings { /* empty */ }
 }

@@ -113,8 +113,8 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         setValueSummary(KEY_MOD_VERSION, "ro.cm.display.version");
         findPreference(KEY_MOD_VERSION).setEnabled(true);
         setValueSummary(KEY_MOD_BUILD_DATE, "ro.build.date");
-        setValueSummary(KEY_PAC_VERSION, "ro.xoplax.version");
-        findPreference(KEY_PAC_VERSION).setEnabled(true);
+        setValueSummary(KEY_XOPLAX_VERSION, "ro.xoplax.version");
+        findPreference(KEY_XOPLAX_VERSION).setEnabled(true);
 
         if (!SELinux.isSELinuxEnabled()) {
             String status = getResources().getString(R.string.selinux_status_disabled);
@@ -209,6 +209,7 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
         removePreference(KEY_CM_CHANGELOG);
         removePreference(KEY_CM_CONTRIBUTORS);
         removePreference(KEY_CM_STATS);
+        removePreference(KEY_MOD_VERSION);
 
     }
 
@@ -283,6 +284,19 @@ public class DeviceInfoSettings extends RestrictedSettingsFragment {
                 intent.putExtra("is_cm", true);
                 intent.setClassName("android",
                         com.android.internal.app.PlatLogoActivity.class.getName());
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Unable to start activity " + intent.toString());
+                }
+            }
+        } else if (preference.getKey().equals(KEY_XOPLAX_VERSION)) {
+            System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+            mHits[mHits.length-1] = SystemClock.uptimeMillis();
+            if (mHits[0] >= (SystemClock.uptimeMillis()-500)) {
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("android",
+                        com.android.internal.app.XOPLAXLogoActivity.class.getName());
                 try {
                     startActivity(intent);
                 } catch (Exception e) {

@@ -51,11 +51,11 @@ public class RecentsPanelSettings extends SettingsPreferenceFragment implements
         ContentResolver resolver = getActivity().getContentResolver();
 
         mRecentClearAll = (CheckBoxPreference) prefSet.findPreference(RECENT_MENU_CLEAR_ALL);
-        mRecentClearAll.setChecked(Settings.System.getInt(resolver,
-            Settings.System.SHOW_CLEAR_RECENTS_BUTTON, 1) == 1);
+        mRecentClearAll.setChecked(Settings.XOPLAX.getInt(resolver,
+            Settings.XOPLAX.SHOW_CLEAR_RECENTS_BUTTON, 1) == 1);
         mRecentClearAll.setOnPreferenceChangeListener(this);
         mRecentClearAllPosition = (ListPreference) prefSet.findPreference(RECENT_MENU_CLEAR_ALL_LOCATION);
-        String recentClearAllPosition = Settings.System.getString(resolver, Settings.System.CLEAR_RECENTS_BUTTON_LOCATION);
+        String recentClearAllPosition = Settings.XOPLAX.getString(resolver, Settings.XOPLAX.CLEAR_RECENTS_BUTTON_LOCATION);
         if (recentClearAllPosition != null) {
              mRecentClearAllPosition.setValue(recentClearAllPosition);
         }
@@ -75,10 +75,10 @@ public class RecentsPanelSettings extends SettingsPreferenceFragment implements
         ContentResolver resolver = getActivity().getContentResolver();
         if (preference == mRecentClearAll) {
             boolean value = (Boolean) objValue;
-            Settings.System.putInt(resolver, Settings.System.SHOW_CLEAR_RECENTS_BUTTON, value ? 1 : 0);
+            Settings.XOPLAX.putInt(resolver, Settings.XOPLAX.SHOW_CLEAR_RECENTS_BUTTON, value ? 1 : 0);
         } else if (preference == mRecentClearAllPosition) {
             String value = (String) objValue;
-            Settings.System.putString(resolver, Settings.System.CLEAR_RECENTS_BUTTON_LOCATION, value);
+            Settings.XOPLAX.putString(resolver, Settings.XOPLAX.CLEAR_RECENTS_BUTTON_LOCATION, value);
         } else {
             return false;
         }
@@ -87,8 +87,8 @@ public class RecentsPanelSettings extends SettingsPreferenceFragment implements
     }
 
     private void updateRamBarStatus() {
-        int ramBarMode = Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(),
-                Settings.System.RECENTS_RAM_BAR_MODE, 0);
+        int ramBarMode = Settings.XOPLAX.getInt(getActivity().getApplicationContext().getContentResolver(),
+                Settings.XOPLAX.RECENTS_RAM_BAR_MODE, 0);
         if (ramBarMode != 0)
             mRecentRamBar.setSummary(getResources().getString(R.string.ram_bar_color_enabled));
         else

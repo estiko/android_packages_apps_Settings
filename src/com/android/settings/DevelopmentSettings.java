@@ -1603,7 +1603,7 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                             oldRuntimeValue, newRuntimeValue));
                 } else {
                     builder.setMessage(Html.fromHtml(context.getResources().getString(
-                            R.string.custom_runtime_warning_message,
+                            R.string.custom_runtime_warning_message_xoplax,
                             oldRuntimeValue, newRuntimeValue)));
                     builder.setTitle(context.getResources().getString(
                             R.string.custom_runtime_warning_title));
