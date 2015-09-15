@@ -4918,4 +4918,7 @@
 
     <!-- Text to display in regulatory info screen (from device overlay). -->
     <string name="regulatory_info_text"></string>
+
+    <!-- XoplaX OS Mod Version -->
+   <string name="xoplax_mod_version">XoplaX OS version</string>
 </resources>
